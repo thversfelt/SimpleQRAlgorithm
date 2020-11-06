@@ -1,4 +1,5 @@
 ﻿using System;
+using UnityEngine;
 
 namespace SimpleQRAlgorithm
 {
@@ -110,11 +111,11 @@ namespace SimpleQRAlgorithm
             int n = A.GetLength(0);
             float[,] C = new float[n, n];
 
-            for (int i = 0; i < n; ++i)
+            for (int i = 0; i < n; i++)
             {
-                for (int j = 0; j < n; ++j)
+                for (int j = 0; j < n; j++)
                 {
-                    for (int k = 0; k < n; ++k)
+                    for (int k = 0; k < n; k++)
                     {
                         C[i, j] += A[i, k] * B[k, j];
                     }
@@ -161,21 +162,136 @@ namespace SimpleQRAlgorithm
         }
 
         /// <summary>
+        /// Constructs an n-by-n identity matrix.
+        /// </summary>
+        /// <param name="n">The size of the matrix.</param>
+        /// <returns>The identity matrix.</returns>
+        public static float[,] Identity(int n)
+        {
+            float[,] I = new float[n, n];
+            for (int i = 0; i < n; i++)
+            {
+                I[i, i] = 1;
+            }
+            return I;
+        }
+
+        /// <summary>
+        /// Calculates the inverse of the given matrix using the 
+        /// Gauss-Jordan Method (see https://en.wikipedia.org/wiki/Gaussian_elimination).
+        /// </summary>
+        /// <param name="A">The matrix to invert.</param>
+        /// <returns>The inverse of the given matrix.</returns>
+        public static float[,] Inverse(float[,] A)
+        {
+            // Initialize the augmented matrix B.
+            int n = A.GetLength(0);
+            float[,] B = new float[n, 2 * n];
+
+            // In the augmented matrix B, the first 3 columns are the original 
+            // matrix A, and the last 3 columns are the identity matrix C.
+            for (int i = 0; i < n; i++)
+            {
+                for (int j = 0; j < n; j++)
+                {
+                    B[i, j] = A[i, j];
+                }
+
+                for (int j = n; j < 2 * n; j++)
+                {
+                    if (i == j - n) B[i, j] = 1;
+                }
+            }
+
+            // Swap rows of the augmented matrix B.
+            for (int i = n - 1; i > 0; i--)
+            {
+                if (B[i - 1, 0] >= B[i, 0]) continue;
+
+                for (int j = 0; j < 2 * n; j++)
+                {
+                    float temp = B[i, j];
+                    B[i, j] = B[i - 1, j];
+                    B[i - 1, j] = temp;
+                }
+            }
+
+            // Substract each row by a multiple of another row.
+            for (int i = 0; i < n; i++)
+            {
+                for (int j = 0; j < n; j++)
+                {
+                    if (i == j) continue;
+
+                    float temp = B[j, i] / B[i, i];
+                    for (int k = 0; k < 2 * n; k++)
+                    {
+                        B[j, k] -= B[i, k] * temp;
+                    }
+                }
+            }
+
+            // Divide each row element by the diagonal element.
+            for (int i = 0; i < n; i++)
+            {
+                float temp = B[i, i];
+                for (int j = 0; j < 2 * n; j++)
+                {
+                    B[i, j] = B[i, j] / temp;
+                }
+            }
+
+            // Strip the augmented matrix B of the first three columns
+            // to get the inverse matrix C of the original matrix A.
+            float[,] C = new float[n, n];
+            for (int i = 0; i < n; i++)
+            {
+                for (int j = n; j < 2 * n; j++)
+                {
+                    C[i, j - n] = B[i, j];
+                }
+            }
+
+            // Return the inverse matrix C.
+            return C;
+        }
+
+        /// <summary>
+        /// Takes the square root of the given diagonal matrix.
+        /// </summary>
+        /// <param name="A">The diagonal matrix.</param>
+        /// <returns>The square root of the given matrix.</returns>
+        public static float[,] Sqrt(float[,] A)
+        {
+            int n = A.GetLength(0);
+            float[,] B = Duplicate(A);
+
+            for (int i = 0; i < n; i++)
+            {
+                B[i, i] = (float)Math.Sqrt(B[i, i]);
+            }
+
+            return B;
+        }
+
+        /// <summary>
         /// Prints the given matrix.
         /// </summary>
         /// <param name="A">The matrix to print.</param>
         /// <returns>The string representation of the given matrix.</returns>
         public static string ToString(float[,] A)
         {
-            int n = A.GetLength(0);
+            int rowCount = A.GetLength(0);
+            int columnCount = A.GetLength(1);
+
             string text = "";
 
-            for (int i = 0; i < n; i++)
+            for (int i = 0; i < rowCount; i++)
             {
                 if (i > 0) text += ',';
 
                 text += '{';
-                for (int j = 0; j < n; j++)
+                for (int j = 0; j < columnCount; j++)
                 {
                     if (j > 0) text += ',';
                     text += A[i, j];

@@ -3,30 +3,39 @@
     public static class QRAlgorithm
     {
         /// <summary>
-        /// Runs the QR algorithm to find the eigenvalues of the given matrix (see https://en.wikipedia.org/wiki/QR_algorithm).
+        /// Runs the QR algorithm to find the eigenvalues and eigenvectors of the given matrix (see https://en.wikipedia.org/wiki/QR_algorithm).
         /// </summary>
-        /// <param name="A">The matrix for which eigenvalues should be found.</param>
+        /// <param name="A">The matrix for which eigenvalues and eigenvectors should be found.</param>
         /// <param name="iterations">The number of iterations.</param>
-        /// <returns>The eigenvalues of the given matrix.</returns>
-        public static float[] Run(float[,] A, int iterations)
+        /// <param name="eigenvalues">The eigenvalues stored as diagonal entries in a matrix.</param>
+        /// <param name="eigenvectors">The eigenvectors stored as columns in a matrix.</param>
+        public static void Run(float[,] A, int iterations, out float[,] eigenvalues, out float[,] eigenvectors)
         {
+            int n = A.GetLength(0);
+
+            // Duplicate the original matrix A so it stays intact.
             float[,] B = LinearAlgebra.Duplicate(A);
 
+            // Initialize the eigenvector matrix C.
+            float[,] U = LinearAlgebra.Identity(n);
+
+            // Perform the QR decomposition and update the B and C matrixes each iteration.
             for (int i = 0; i < iterations; i++)
             {
                 QRDecomposition(B, out float[,] Q, out float[,] R);
                 B = LinearAlgebra.Product(R, Q);
+                U = LinearAlgebra.Product(U, Q);
             }
 
-            // The eigenvalues are on the diagonal of the matrix.
-            int n = A.GetLength(0);
-            float[] eigenvalues = new float[n];
+            // The eigenvalues are on the diagonal of the B matrix.
+            eigenvalues = new float[n, n];
             for (int i = 0; i < n; i++)
             {
-                eigenvalues[i] = B[i, i];
+                eigenvalues[i, i] = B[i, i];
             }
 
-            return eigenvalues;
+            // The eigenvectors are the columns of the C matrix.
+            eigenvectors = U;
         }
 
         /// <summary>
@@ -39,6 +48,7 @@
         {
             int n = A.GetLength(0);
 
+            // Duplicate the original matrix A so it stays intact.
             float[,] U = LinearAlgebra.Duplicate(A);
 
             // Calculate the U matrix using the Gram–Schmidt process (see https://en.wikipedia.org/wiki/Gram%E2%80%93Schmidt_process).
