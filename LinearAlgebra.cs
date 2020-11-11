@@ -1,5 +1,4 @@
 ﻿using System;
-using UnityEngine;
 
 namespace SimpleQRAlgorithm
 {
@@ -15,10 +14,12 @@ namespace SimpleQRAlgorithm
         {
             int n = A.GetLength(0);
             float[] column = new float[n];
+
             for (int i = 0; i < n; i++)
             {
                 column[i] = A[i, j];
             }
+
             return column;
         }
 
@@ -51,11 +52,14 @@ namespace SimpleQRAlgorithm
         /// <returns></returns>
         public static float[] Scale(float[] a, float s)
         {
-            for (int i = 0; i < a.Length; i++)
+            int n = a.Length;
+            float[] b = new float[n];
+
+            for (int i = 0; i < n; i++)
             {
-                a[i] *= s;
+                b[i] = s * a[i];
             }
-            return a;
+            return b;
         }
 
         /// <summary>
@@ -63,15 +67,39 @@ namespace SimpleQRAlgorithm
         /// </summary>
         /// <param name="a">The first vector.</param>
         /// <param name="b">The second vector.</param>
-        /// <returns>The inner product.</returns>
+        /// <returns>The inner product value.</returns>
         public static float InnerProduct(float[] a, float[] b)
         {
-            float product = 0;
+            float innerProduct = 0;
+
             for (int i = 0; i < a.Length; i++)
             {
-                product += a[i] * b[i];
+                innerProduct += a[i] * b[i];
             }
-            return product;
+
+            return innerProduct;
+        }
+
+        /// <summary>
+        /// Calculates the outer product between two vectors.
+        /// </summary>
+        /// <param name="a">The first vector.</param>
+        /// <param name="b">The second vector.</param>
+        /// <returns>The outer product matrix.</returns>
+        public static float[,] OuterProduct(float[] a, float[] b)
+        {
+            int n = a.Length;
+            float[,] outerProduct = new float[n, n];
+
+            for (int i = 0; i < n; i++)
+            {
+                for (int j = 0; j < n; j++)
+                {
+                    outerProduct[i, j] = a[i] * b[j];
+                }
+            }
+
+            return outerProduct;
         }
 
         /// <summary>
@@ -93,11 +121,57 @@ namespace SimpleQRAlgorithm
         /// <returns>The substracted vector.</returns>
         public static float[] Subtract(float[] a, float[] b)
         {
-            for (int i = 0; i < a.Length; i++)
+            int n = a.Length;
+            float[] c = new float[n];
+
+            for (int i = 0; i < n; i++)
             {
-                a[i] -= b[i];
+                c[i] = a[i] - b[i];
             }
-            return a;
+
+            return c;
+        }
+
+        /// <summary>
+        /// Adds vector "b" from vector "a".
+        /// </summary>
+        /// <param name="a">The vector to be added.</param>
+        /// <param name="b">The adding vector.</param>
+        /// <returns>The added vector.</returns>
+        public static float[] Add(float[] a, float[] b)
+        {
+            int n = a.Length;
+            float[] c = new float[n];
+
+            for (int i = 0; i < n; i++)
+            {
+                c[i] = a[i] + b[i];
+            }
+
+            return c;
+        }
+
+        /// <summary>
+        /// Adds matrix B to matrix A.
+        /// </summary>
+        /// <param name="a">The matrix to be added.</param>
+        /// <param name="b">The adding matrix.</param>
+        /// <returns>The added matrix.</returns>
+        public static float[,] Add(float[,] A, float[,] B)
+        {
+            int n = A.GetLength(0);
+            float[,] C = new float[n, n];
+
+            for (int i = 0; i < n; i++)
+            {
+                for (int j = 0; j < n; j++)
+                {
+                    C[i, j] = A[i, j] + B[i, j];
+                }
+                
+            }
+
+            return C;
         }
 
         /// <summary>
@@ -123,6 +197,22 @@ namespace SimpleQRAlgorithm
             }
 
             return C;
+        }
+
+        public static float[] Product(float[,] A, float[] b)
+        {
+            int n = A.GetLength(0);
+            float[] c = new float[n];
+
+            for (int i = 0; i < n; i++)
+            {
+                for (int j = 0; j < n; j++)
+                {
+                    c[i] += A[i, j] * b[j];
+                }
+            }
+
+            return c;
         }
 
         /// <summary>
@@ -154,10 +244,12 @@ namespace SimpleQRAlgorithm
         public static float Magnitude(float[] a)
         {
             float magnitude = 0;
+
             for (int i = 0; i < a.Length; i++)
             {
                 magnitude += a[i] * a[i];
             }
+
             return (float)Math.Sqrt(magnitude);
         }
 
@@ -268,7 +360,9 @@ namespace SimpleQRAlgorithm
 
             for (int i = 0; i < n; i++)
             {
-                B[i, i] = (float)Math.Sqrt(B[i, i]);
+                if (A[i, i] <= 0) { throw new DivideByZeroException(); };
+
+                B[i, i] = (float)Math.Sqrt(A[i, i]);
             }
 
             return B;
@@ -298,6 +392,7 @@ namespace SimpleQRAlgorithm
                 }
                 text += '}';
             }
+
             return text;
         }
 
@@ -315,6 +410,7 @@ namespace SimpleQRAlgorithm
                 text += a[i];
             }
             text += '}';
+
             return text;
         }
     }

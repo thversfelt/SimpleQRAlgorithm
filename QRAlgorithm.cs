@@ -9,7 +9,7 @@
         /// <param name="iterations">The number of iterations.</param>
         /// <param name="eigenvalues">The eigenvalues stored as diagonal entries in a matrix.</param>
         /// <param name="eigenvectors">The eigenvectors stored as columns in a matrix.</param>
-        public static void Run(float[,] A, int iterations, out float[,] eigenvalues, out float[,] eigenvectors)
+        public static void Diagonalize(float[,] A, int iterations, out float[,] eigenvalues, out float[,] eigenvectors)
         {
             int n = A.GetLength(0);
 
